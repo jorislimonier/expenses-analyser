@@ -26,93 +26,78 @@ class DataLoader():
         except Exception as e:
             return np.nan
 
-        if "escota vinci" in comm_lower:
-            return "tolls"
-        elif "aprr" in comm_lower:
-            return "tolls"
+        cat_dict = {}
 
-        elif "helios crou 1 sc2341529" in comm_lower:
-            return "crous_food"
+        tolls_list = ["escota vinci",
+                      "aprr"]
 
-        elif "pharmacie" in comm_lower:
-            return "health"
+        food_fancy = ["maxicoffee sud",
+                      "pizza",
+                      "pizzeria",
+                      "mirage sarl 4173455",  # hop store (bar)
+                      "rpa sta acro3",  # beer with generationZ
+                      "colgan, antibes"]  # The Duke bar
 
-        elif "maxicoffee sud" in comm_lower:
-            return "food_non_groceries"
-        elif "pizza" in comm_lower:
-            return "food_non_groceries"
-        elif "pizzeria" in comm_lower:
-            return "food_non_groceries"
-        elif "mirage sarl 4173455" in comm_lower:  # hop store (bar)
-            return "food_non_groceries"
-        elif "rpa sta acro3" in comm_lower:  # beer with generationZ
-            return "food_non_groceries"
-        elif "colgan, antibes" in comm_lower:  # The Duke bar
-            return "food_non_groceries"
+        food_basic = ["carrefourmarket, mougins",
+                      "leader, antibes",
+                      "sm casino cs898, biot",
+                      "carrefour niceli",
+                      "sc baghera, 06mougins",
+                      "sm casino cs638",
+                      "helios crou 1 sc2341529", ]
 
-        elif "carrefourmarket, mougins" in comm_lower:
-            return "groceries"
-        elif "leader, antibes" in comm_lower:
-            return "groceries"
-        elif "sm casino cs898, biot" in comm_lower:
-            return "groceries"
-        elif "carrefour niceli" in comm_lower:
-            return "groceries"
-        elif "sc baghera, 06mougins" in comm_lower:
-            return "groceries"
-        elif "sm casino cs638" in comm_lower:
-            return "groceries"
+        tech_list = ["boulanger, mandelieu",
+                     "darty"]
 
-        elif "boulanger, mandelieu" in comm_lower:
-            return "tech"
-        elif "darty" in comm_lower:
-            return "tech"
+        cash_list = ["retrait bancomat"]
 
-        elif "retrait bancomat" in comm_lower:
-            return "cash"
+        gas_list = ["esso moulieres",
+                    "q8 martinelli",
+                    "station u 9240101, 06plascassier",
+                    "intermarche dac, gattieres, fra, achat vpay du 09/10/2021 a 08:26",
+                    "tankstelle"]
 
-        elif "esso moulieres" in comm_lower:
-            return "gas"
-        elif "q8 martinelli" in comm_lower:
-            return "gas"
-        elif "station u 9240101, 06plascassier" in comm_lower:
-            return "gas"
-        elif "intermarche dac, gattieres, fra, achat vpay du 09/10/2021 a 08:26" in comm_lower:
-            return "gas"
-        elif "tankstelle" in comm_lower:
-            return "gas"
+        gift_list = ["intermarche, cuers"]
 
-        elif "intermarche, cuers" in comm_lower:
-            return "gift"
+        clothes_list = ["kiabi",
+                        "chaussea",
+                        "decathlon"]
 
-        elif "kiabi" in comm_lower:
-            return "clothes"
-        elif "chaussea" in comm_lower:
-            return "clothes"
-        elif "decathlon" in comm_lower:
-            return "clothes"
-        elif "jules" in comm_lower and "2980914" in comm_lower:
-            return "clothes"
+        taxes_and_utilities_list = ["ville de luxembourg",
+                                    "edf",
+                                    "foyer assurances sa",
+                                    "tdo, 3 rue jean piret"]
 
-        elif "ville de luxembourg" in comm_lower:
-            return "taxes and utilities"
-        elif "edf" in comm_lower:
-            return "taxes and utilities"
-        elif "foyer assurances sa" in comm_lower:
-            return "taxes and utilities"
-        elif "tdo, 3 rue jean piret" in comm_lower:
-            return "taxes and utilities"
+        phone_list = ["sfr",
+                      "orange communications luxembourg"]
 
-        elif "sfr" in comm_lower:
-            return "phone"
-        elif "orange communications luxembourg" in comm_lower:
-            return "phone"
+        rent_list = ["billaudel"]
 
-        elif "billaudel" in comm_lower:
-            return "rent"
+        health_list = ["pharmacie"]
 
-        else:
-            return np.nan
+        # if "jules" in comm_lower and "2980914" in comm_lower:
+        #     return "clothes"
+
+        cat_dict["tolls"] = tolls_list
+        cat_dict["food_non_groceries"] = food_fancy
+        cat_dict["groceries"] = food_basic
+        cat_dict["tech"] = tech_list
+        cat_dict["cash"] = cash_list
+        cat_dict["gas"] = gas_list
+        cat_dict["gift"] = gift_list
+        cat_dict["clothes"] = clothes_list
+        cat_dict["taxes_and_utilities"] = taxes_and_utilities_list
+        cat_dict["phone"] = phone_list
+        cat_dict["rent"] = rent_list
+        cat_dict["health"] = health_list
+
+
+        for category, category_list in cat_dict.items():
+            for marker in category_list:
+                if marker in comm_lower:
+                    print(f"{category} is returned for {marker}")
+                    return category
+        return np.nan
 
     def generate_debit_df(self):
         debit = self.data.copy()
