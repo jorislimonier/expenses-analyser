@@ -32,15 +32,6 @@ X_train, X_test, y_train, y_test = train_test_split(X, y,
                                                     random_state=42)
 
 # %% [markdown]
-# ## LinearSVC
-# %%
-clf = LinearSVC()
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
-accuracy_score(y_test, y_pred)
-# %%
-X_test.join(pd.DataFrame({"pred": y_pred}))
-# %% [markdown]
 # ## Decision Tree
 # %%
 
@@ -74,6 +65,7 @@ accuracy_score(y_test, y_pred)
 plt.figure(figsize=(64, 24))
 plot_tree(clf, fontsize=6)
 plt.savefig("tree", dpi=100)
+
 # %% [markdown]
 # ## Random Forest
 
@@ -84,20 +76,12 @@ y_pred = clf.predict(X_test)
 accuracy_score(y_test, y_pred)
 
 # %%
-y_test.sum(axis=1)
 y_test.idxmax(axis=1)
 # %%
-sum(pd.DataFrame(y_pred).idxmax(axis=1).apply(
-    lambda x: label_col[x]).values == y_test.idxmax(axis=1)) / 42
-# %%
-pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x])
-# %%
-cm = confusion_matrix(y_test.idxmax(axis=1), pd.DataFrame(
-    y_pred).idxmax(axis=1).apply(lambda x: label_col[x]))
-ConfusionMatrixDisplay(cm, display_labels=label_col[1:]).plot()
+y_pred_label = pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x])
 # %%
 skplt.metrics.plot_confusion_matrix(y_test.idxmax(axis=1), pd.DataFrame(
     y_pred).idxmax(axis=1).apply(lambda x: label_col[x]), x_tick_rotation=90
 )
 # %%
-label_col
+y.idxmax(axis=1)[y.idxmax(axis=1) == "label_tuition_fees"]
