@@ -12,6 +12,7 @@ class DataLoader():
         self.PATH = PATH
         self.load_data()
         self.generate_debit_df()
+        self._debit_dummy = None
 
     def load_data(self):
         "load initial data"
@@ -181,6 +182,16 @@ class DataLoader():
 
         self.debit = debit
 
+    @property
+    def debit_dummy(self):
+        if self._debit_dummy is None:
+            debit = DataLoader.split_date(self.debit)
+            self._debit_dummy = pd.get_dummies(debit,
+                                               columns=["transfer_type",
+                                                        "label"],
+                                               drop_first=False)
+        return self._debit_dummy
+
     def label_encode_debit(self):
         transfer_type_enc = LabelEncoder().fit_transform(
             self.debit["transfer_type"])
@@ -201,5 +212,3 @@ class DataLoader():
             df["date"]).dayofweek
         df = df.drop(columns=["date"])
         return df
-
-    

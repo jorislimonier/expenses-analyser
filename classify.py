@@ -21,18 +21,16 @@ class Classify():
         self.data_loader = data_loader
 
     def apply_decision_tree(self, plot=False):
-        """Apply a decision tree to the `debit` dataframe"""
-        debit = DataLoader.split_date(self.data_loader.debit)
-        debit_dummy = pd.get_dummies(debit,
-                                     columns=["transfer_type", "label"],
-                                     drop_first=True)
-
+        """
+        Apply a decision tree to the `debit` dataframe
+        from the `DataLoader` class
+        """
         label_col = [
-            col for col in debit_dummy.columns if col.startswith("label")]
-
+            col for col in self.data_loader.debit_dummy.columns if col.startswith("label")]
         # ignore communication column for now
-        X = debit_dummy.drop(columns=label_col+["communication"])
-        y = debit_dummy[label_col]
+        X = self.data_loader.debit_dummy.drop(
+            columns=label_col+["communication"])
+        y = self.data_loader.debit_dummy[label_col]
 
         # split data
         X_train, X_test, y_train, y_test = train_test_split(X, y,
@@ -48,3 +46,36 @@ class Classify():
             plt.figure(figsize=(120, 60))
             plot_tree(clf, feature_names=X.columns)
             plt.savefig("tree", dpi=80)
+
+    def apply_random_forest(self, conf_max=False):
+        """
+        Apply a decision tree to the `debit` dataframe
+        from the `DataLoader` class
+        """
+
+        label_col = [
+            col for col in self.data_loader.debit_dummy.columns if col.startswith("label")]
+
+        # ignore communication column for now
+        X = self.data_loader.debit_dummy.drop(
+            columns=label_col+["communication"])
+        y = self.data_loader.debit_dummy[label_col]
+
+        # split data
+        X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                            train_size=.8,
+                                                            shuffle=True,)
+        # classify
+        clf = RandomForestClassifier()
+        clf.fit(X_train, y_train)
+        y_pred = clf.predict(X_test)
+        print(f"Decision tree accuracy: {accuracy_score(y_test, y_pred)}")
+
+        if conf_max:
+            y_test_label = y_test.idxmax(axis=1)
+            y_pred_label = pd.DataFrame(y_pred).idxmax(axis=1)
+            y_pred_label = y_pred_label.apply(lambda x: label_col[x])
+            skplt.metrics.plot_confusion_matrix(y_true=y_test_label,
+                                                y_pred=y_pred_label,
+                                                labels=label_col,
+                                                x_tick_rotation=90)

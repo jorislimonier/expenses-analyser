@@ -1,4 +1,6 @@
 # %%
+from itertools import count
+from sklearn.feature_extraction.text import TfidfTransformer,  TfidfVectorizer, CountVectorizer
 from scipy.sparse.construct import rand
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import OneHotEncoder
@@ -17,9 +19,12 @@ import data_loader
 import classify
 
 # %%
+
+
 def reload():
     importlib.reload(data_loader)
     importlib.reload(classify)
+
 
 # %% [markdown]
 # ## Decision Tree
@@ -34,18 +39,24 @@ cls.apply_decision_tree()
 # ## Random Forest
 
 # %%
-clf = RandomForestClassifier()
-clf.fit(X_train, y_train)
-y_pred = clf.predict(X_test)
-accuracy_score(y_test, y_pred)
+reload()
+dl = data_loader.DataLoader()
+cls = classify.Classify(dl)
+cls.apply_random_forest(True)
+
+
+# %% [markdown]
+# ## NLP on communication column
 
 # %%
-y_test.idxmax(axis=1)
+for comm in dl.debit["communication"]:
+    print(comm)
 # %%
-y_pred_label = pd.DataFrame(y_pred).idxmax(
-    axis=1).apply(lambda x: label_col[x])
+
+count_vect = CountVectorizer()
+X_train_counts = count_vect.fit_transform(dl.debit["communication"].dropna())
+count_vect.vocabulary_
 # %%
-skplt.metrics.plot_confusion_matrix(y_test.idxmax(axis=1),
-                                    pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x]), x_tick_rotation=90)
-# %%
-y.idxmax(axis=1)[y.idxmax(axis=1) == "label_tuition_fees"]
+tf_transformer = TfidfTransformer(use_idf=False)
+X_train_tf = tf_transformer.fit_transform(X_train_counts)
+print(X_train_tf)
