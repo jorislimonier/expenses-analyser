@@ -5,19 +5,21 @@ from sklearn.preprocessing import OneHotEncoder
 from sklearn.svm import LinearSVC
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score, confusion_matrix
+from sklearn.metrics import accuracy_score, confusion_matrix, plot_confusion_matrix, ConfusionMatrixDisplay
 import plotly.express as px
 import numpy as np
 import pandas as pd
 import importlib
 import data_loader
 import matplotlib.pyplot as plt
+import seaborn as sns
+import scikitplot as skplt
 # %%
 
 importlib.reload(data_loader)
-dl = data_loader.DataLoader()
 
-# dl.label_encode_debit()
+dl = data_loader.DataLoader()
+dl.label_encode_debit()
 dl.split_date()
 
 # %%
@@ -41,7 +43,21 @@ X_test.join(pd.DataFrame({"pred": y_pred}))
 # %% [markdown]
 # ## Decision Tree
 # %%
-df_dummy = pd.get_dummies(dl.debit, columns=["transfer_type", "label"], drop_first=True)
+
+dl = data_loader.DataLoader()
+dl.split_date()
+
+# %%
+
+X = dl.debit.drop(columns=["label", "communication"])
+y = dl.debit["label"]
+X_train, X_test, y_train, y_test = train_test_split(X, y,
+                                                    train_size=.8,
+                                                    shuffle=True,
+                                                    random_state=42)
+# %%
+df_dummy = pd.get_dummies(
+    dl.debit, columns=["transfer_type", "label"], drop_first=True)
 
 label_col = [col for col in df_dummy.columns if col.startswith("label")]
 y = df_dummy[label_col]
@@ -55,10 +71,10 @@ clf.fit(X_train, y_train)
 y_pred = clf.predict(X_test)
 accuracy_score(y_test, y_pred)
 
-plt.figure(figsize=(64,24))
+plt.figure(figsize=(64, 24))
 plot_tree(clf, fontsize=6)
 plt.savefig("tree", dpi=100)
-# %% [markdown] 
+# %% [markdown]
 # ## Random Forest
 
 # %%
@@ -71,6 +87,17 @@ accuracy_score(y_test, y_pred)
 y_test.sum(axis=1)
 y_test.idxmax(axis=1)
 # %%
-sum(pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x]).values == y_test.idxmax(axis=1)) / 42
+sum(pd.DataFrame(y_pred).idxmax(axis=1).apply(
+    lambda x: label_col[x]).values == y_test.idxmax(axis=1)) / 42
 # %%
-pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x]).values == y_test.idxmax(axis=1)
+pd.DataFrame(y_pred).idxmax(axis=1).apply(lambda x: label_col[x])
+# %%
+cm = confusion_matrix(y_test.idxmax(axis=1), pd.DataFrame(
+    y_pred).idxmax(axis=1).apply(lambda x: label_col[x]))
+ConfusionMatrixDisplay(cm, display_labels=label_col[1:]).plot()
+# %%
+skplt.metrics.plot_confusion_matrix(y_test.idxmax(axis=1), pd.DataFrame(
+    y_pred).idxmax(axis=1).apply(lambda x: label_col[x]), x_tick_rotation=90
+)
+# %%
+label_col
