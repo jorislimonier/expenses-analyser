@@ -10,20 +10,24 @@ import plotly.express as px
 import numpy as np
 import pandas as pd
 import importlib
-import data_loader
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scikitplot as skplt
+import data_loader
+import classify
 
+# %%
+def reload():
+    importlib.reload(data_loader)
+    importlib.reload(classify)
 
 # %% [markdown]
 # ## Decision Tree
 # %%
-
-
-importlib.reload(data_loader)
+reload()
 dl = data_loader.DataLoader()
-dl.apply_decision_tree()
+cls = classify.Classify(dl)
+cls.apply_decision_tree()
 
 
 # %% [markdown]

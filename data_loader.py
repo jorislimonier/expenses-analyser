@@ -2,8 +2,6 @@ import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier, plot_tree
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
-from importlib import import_module
-import plotly.express as px
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -190,46 +188,18 @@ class DataLoader():
         self.debit["label"] = label_enc.transform(self.debit["label"])
         self.debit["transfer_type"] = transfer_type_enc
 
-    def split_date(self):
-        """Transform datetime object to year, month, day and dayofweek"""
-        self.debit["year"] = pd.DatetimeIndex(self.debit["date"]).year
-        self.debit["month"] = pd.DatetimeIndex(self.debit["date"]).month
-        self.debit["day"] = pd.DatetimeIndex(self.debit["date"]).day
-        self.debit["dayofweek"] = pd.DatetimeIndex(
-            self.debit["date"]).dayofweek
-        self.debit = self.debit.drop(columns=["date"])
+    @staticmethod
+    def split_date(df):
+        """
+        Transform the `date` column of `df`
+        from datetime object to year, month, day and dayofweek
+        """
+        df["year"] = pd.DatetimeIndex(df["date"]).year
+        df["month"] = pd.DatetimeIndex(df["date"]).month
+        df["day"] = pd.DatetimeIndex(df["date"]).day
+        df["dayofweek"] = pd.DatetimeIndex(
+            df["date"]).dayofweek
+        df = df.drop(columns=["date"])
+        return df
 
-    def apply_decision_tree(self, plot=False):
-        """Apply a decision tree to the `debit` dataframe"""
-        self.split_date()
-        debit_dummy = pd.get_dummies(self.debit,
-                                     columns=["transfer_type", "label"],
-                                     drop_first=True)
-
-        label_col = [
-            col for col in debit_dummy.columns if col.startswith("label")]
-
-        # ignore communication column for now
-        X = debit_dummy.drop(columns=label_col+["communication"])
-        y = debit_dummy[label_col]
-
-        # split data
-        X_train, X_test, y_train, y_test = train_test_split(X, y,
-                                                            train_size=.8,
-                                                            shuffle=True,)
-        # classify
-        clf = DecisionTreeClassifier()
-        clf.fit(X_train, y_train)
-        y_pred = clf.predict(X_test)
-        print(f"Decision tree accuracy: {accuracy_score(y_test, y_pred)}")
-
-        if plot:
-            plt.figure(figsize=(120, 60))
-            plot_tree(clf, feature_names=X.columns)
-            plt.savefig("tree", dpi=80)
-
-    def plot_dump(self):
-        pass
-        # px.bar(exp.sort_values("spent", ascending=False), y="spent",
-        #        color="spent", color_continuous_scale="Bluered")
-        # px.scatter(debit, x="Date d'opération", y="spent")
+    
