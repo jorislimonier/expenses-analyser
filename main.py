@@ -1,4 +1,5 @@
 # %%
+from sklearn.naive_bayes import MultinomialNB
 from itertools import count
 from sklearn.feature_extraction.text import TfidfTransformer,  TfidfVectorizer, CountVectorizer
 from scipy.sparse.construct import rand
@@ -57,6 +58,14 @@ count_vect = CountVectorizer()
 X_train_counts = count_vect.fit_transform(dl.debit["communication"].dropna())
 count_vect.vocabulary_
 # %%
-tf_transformer = TfidfTransformer(use_idf=False)
-X_train_tf = tf_transformer.fit_transform(X_train_counts)
-print(X_train_tf)
+
+tfidf_transformer = TfidfTransformer()
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+X_train_tfidf
+# %%
+mnb = MultinomialNB().fit(X_train_tfidf, dl.debit["label"][~dl.debit["communication"].isna()])
+
+X_new_counts = count_vect.transform(["sfr phone bill", "", "carrefour market"])
+X_new_tfidf = tfidf_transformer.transform(X_new_counts)
+X_new_tfidf
+mnb.predict(X_new_tfidf)
