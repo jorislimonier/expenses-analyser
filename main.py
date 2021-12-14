@@ -1,5 +1,6 @@
 # %%
 # Third-party imports
+import json
 from sklearn.naive_bayes import MultinomialNB
 from itertools import count
 from sklearn.feature_extraction.text import TfidfTransformer,  TfidfVectorizer, CountVectorizer
@@ -53,32 +54,9 @@ cls.apply_random_forest(True)
 
 # %%
 
-import json
-
-with open("label_identifiers.json") as f:
-    label_id = json.load(f)
-type(label_id)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# %%
 dl.debit["label"].value_counts()
 dl.debit[dl.debit["label"] == "taxes_and_utilities"]
+
 # %% [markdown]
 # ## NLP on communication column
 

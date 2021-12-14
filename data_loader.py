@@ -1,7 +1,4 @@
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeClassifier, plot_tree
-from sklearn.metrics import accuracy_score
-from sklearn.model_selection import train_test_split
+import json
 import numpy as np
 import pandas as pd
 from sklearn.preprocessing import LabelEncoder
@@ -34,125 +31,13 @@ class DataLoader():
         "categorize expenses based on communication"
         try:
             comm_lower = comm.lower()
-        except Exception as e:
+        except Exception:
             return "taxes_and_utilities"
 
-        cat_dict = {}
-        tolls_list = ["escota vinci",
-                      "aprr"]
-        food_fancy_list = ["maxicoffee sud",
-                           "pizza",
-                           "pizzeria",
-                           "mirage sarl 4173455",  # hop store (bar)
-                           "rpa sta acro3",  # beer with generationZ
-                           "colgan, antibes",  # The Duke bar
-                           "le blue whales",  # integration
-                           "esteban cafe",
-                           "les 3 diables",
-                           "groovin, nice"]
-        food_basic_list = ["carrefourmarket, mougins",
-                           "leader, antibes",
-                           "sm casino cs898, biot",
-                           "carrefour niceli",
-                           "sc baghera, 06mougins",
-                           "sm casino cs638",
-                           "helios crou 1 sc2341529",
-                           "k e n, 06mougins",
-                           "auchan cloche d'or"]
-        tech_list = ["boulanger, mandelieu",
-                     "darty",
-                     "microsoft payments"]
-        cash_list = ["retrait bancomat"]
-        car_list = ["esso moulieres",
-                    "q8 martinelli",
-                    "station u 9240101, 06plascassier",
-                    "intermarche dac, gattieres, fra, achat vpay du 09/10/2021 a 08:26",
-                    "tankstelle",
-                    "intermarche dac",
-                    "total 4973475",
-                    "total 4382876",
-                    "aral station",
-                    "frais voiture",
-                    "bp capellen",
-                    "q8 gasperich",
-                    "snct livange",
-                    "shell echternach",
-                    "bsca parking"]
-        gift_list = ["intermarche, cuers",
-                     "floriane, 06mougins"]
-        clothes_list = ["kiabi",
-                        "chaussea",
-                        "decathlon",
-                        "jules 2980914"]
-        taxes_and_utilities_list = ["ville de luxembourg",
-                                    "edf",
-                                    "foyer assurances sa",
-                                    "tdo, 3 rue jean piret",
-                                    "leo s.a."]
-        phone_list = ["sfr",
-                      "orange communications luxembourg"]
-        rent_list = ["billaudel",
-                     "rent + bill"]
-        health_list = ["pharmacie",
-                       "laboratoire 4336511",
-                       "dr poyet",
-                       "pcr test"]
-        travel_list = ["ratp",
-                       "sncf",
-                       "maison bichon",
-                       "sarl cvfm 2442422",
-                       "groupe bigbang",
-                       "louisblanc",
-                       "sc-mamma",
-                       "waiz naritake",
-                       "le blue whales",
-                       "ste claire borne2310551",
-                       "aparcamiento baluarte",
-                       "albergue casa baztan",
-                       "est serv herno ",
-                       "vieja fontana de oro",
-                       "intermarche",
-                       "intermarche laverie",
-                       "cafe du passage 2933137",
-                       "station alvea",
-                       "prima fabbrica",
-                       "le moderne",
-                       "l esplanade",
-                       "chez tonton",
-                       "la cremaillere",
-                       "sc horodateur 2331310",
-                       "caves du pere augus",
-                       "photomaton 2508911",
-                       "photomaton 2508911",
-                       "horodateurs 2384313",
-                       "la creperie de jean",
-                       "leclerc station",
-                       "qpf rabine 2950082",
-                       "citedia hoche",
-                       "est serv herno",
-                       "chez cloclo",
-                       "vt mt st michel",
-                       "stationnem horod2350392",
-                       "cora saint malo"]
 
-        tuition_fees_list = ["first year msc"]
-
-        cat_dict["tolls"] = tolls_list
-        cat_dict["food_fancy"] = food_fancy_list
-        cat_dict["food_basic"] = food_basic_list
-        cat_dict["tech"] = tech_list
-        cat_dict["cash"] = cash_list
-        cat_dict["car"] = car_list
-        cat_dict["gift"] = gift_list
-        cat_dict["clothes"] = clothes_list
-        cat_dict["taxes_and_utilities"] = taxes_and_utilities_list
-        cat_dict["phone"] = phone_list
-        cat_dict["rent"] = rent_list
-        cat_dict["health"] = health_list
-        cat_dict["travel"] = travel_list
-        cat_dict["tuition_fees"] = tuition_fees_list
-
-        for category, category_list in cat_dict.items():
+        with open("label_identifiers.json") as f:
+            cat_dict_json = json.load(f)
+        for category, category_list in cat_dict_json.items():
             for marker in category_list:
                 if marker in comm_lower:
                     return category
