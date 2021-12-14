@@ -1,4 +1,5 @@
 # %%
+# Third-party imports
 from sklearn.naive_bayes import MultinomialNB
 from itertools import count
 from sklearn.feature_extraction.text import TfidfTransformer,  TfidfVectorizer, CountVectorizer
@@ -16,6 +17,8 @@ import importlib
 import matplotlib.pyplot as plt
 import seaborn as sns
 import scikitplot as skplt
+
+# Custom imports
 import data_loader
 import classify
 
@@ -45,13 +48,40 @@ dl = data_loader.DataLoader()
 cls = classify.Classify(dl)
 cls.apply_random_forest(True)
 
+# %% [markdown]
+# ## Load JSON
 
+# %%
+
+import json
+
+with open("label_identifiers.json") as f:
+    label_id = json.load(f)
+type(label_id)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# %%
+dl.debit["label"].value_counts()
+dl.debit[dl.debit["label"] == "taxes_and_utilities"]
 # %% [markdown]
 # ## NLP on communication column
 
-# %%
-for comm in dl.debit["communication"]:
-    print(comm)
 # %%
 
 count_vect = CountVectorizer()
@@ -63,7 +93,8 @@ tfidf_transformer = TfidfTransformer()
 X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
 X_train_tfidf
 # %%
-mnb = MultinomialNB().fit(X_train_tfidf, dl.debit["label"][~dl.debit["communication"].isna()])
+mnb = MultinomialNB().fit(
+    X_train_tfidf, dl.debit["label"][~dl.debit["communication"].isna()])
 
 X_new_counts = count_vect.transform(["sfr phone bill", "", "carrefour market"])
 X_new_tfidf = tfidf_transformer.transform(X_new_counts)
