@@ -30,9 +30,15 @@ def reload():
     importlib.reload(data_loader)
     importlib.reload(classify)
 
+# %%
+reload()
+
+dl = data_loader.DataLoader(PATH="../data/expenses_new.csv")
+dl.data
 
 # %% [markdown]
 # ## Decision Tree
+
 # %%
 reload()
 dl = data_loader.DataLoader()
