@@ -48,7 +48,7 @@ class DataLoader:
         "Generate a dataframe with debits only"
 
         # Create dataframe from self.data
-        debit = self.data.copy()
+        debit: pd.DataFrame = self.data.copy()
         debit = debit[
             np.all(
                 [debit["amount"] < 0, debit["transfer_type"] != "DECOMPTE VISA"], axis=0
@@ -63,6 +63,9 @@ class DataLoader:
         ), "Some currencies are different from 'EUR'"
 
         debit.drop(columns=["amount", "currency"], inplace=True, errors="ignore")
+
+        # Fill na with empty string
+        debit["communication"] = debit["communication"].fillna("")
 
         # Make labels
         debit["label"] = debit["communication"].apply(self.make_initial_categories)
