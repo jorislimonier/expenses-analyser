@@ -12,7 +12,9 @@ class DataLoader:
         self._debit_dummy = None
 
     def load_data(self):
-        "load initial data"
+        """
+        Load initial data and convert types as they should be.
+        """
         self.initial_data = pd.read_csv(self.PATH, header=3, sep=";")
         data = self.initial_data.copy()
         new_col_dict = {
@@ -51,13 +53,17 @@ class DataLoader:
         debit: pd.DataFrame = self.data.copy()
         debit = debit[
             np.all(
-                [debit["amount"] < 0, debit["transfer_type"] != "DECOMPTE VISA"], axis=0
+                a=[
+                    debit["amount"] < 0,
+                    debit["transfer_type"] != "DECOMPTE VISA",
+                ],
+                axis=0,
             )
         ]
         debit = debit.reset_index(drop=True)
         debit["spent"] = debit.amount * -1
 
-        # drop currency column if all debits are euros and drop amount column
+        # Drop currency column if all debits are euros and drop amount column
         assert np.all(
             debit["currency"].unique() == ["EUR"]
         ), "Some currencies are different from 'EUR'"
@@ -71,6 +77,19 @@ class DataLoader:
         debit["label"] = debit["communication"].apply(self.make_initial_categories)
 
         self.debit = debit
+
+    @staticmethod
+    def split_date(df):
+        """
+        Transform the `date` column of `df`
+        from datetime object to year, month, day and dayofweek
+        """
+        df["year"] = pd.DatetimeIndex(df["date"]).year
+        df["month"] = pd.DatetimeIndex(df["date"]).month
+        df["day"] = pd.DatetimeIndex(df["date"]).day
+        df["dayofweek"] = pd.DatetimeIndex(df["date"]).dayofweek
+        df = df.drop(columns=["date"])
+        return df
 
     @property
     def debit_dummy(self):
@@ -86,16 +105,3 @@ class DataLoader:
         label_enc = LabelEncoder().fit(self.debit["label"])
         self.debit["label"] = label_enc.transform(self.debit["label"])
         self.debit["transfer_type"] = transfer_type_enc
-
-    @staticmethod
-    def split_date(df):
-        """
-        Transform the `date` column of `df`
-        from datetime object to year, month, day and dayofweek
-        """
-        df["year"] = pd.DatetimeIndex(df["date"]).year
-        df["month"] = pd.DatetimeIndex(df["date"]).month
-        df["day"] = pd.DatetimeIndex(df["date"]).day
-        df["dayofweek"] = pd.DatetimeIndex(df["date"]).dayofweek
-        df = df.drop(columns=["date"])
-        return df

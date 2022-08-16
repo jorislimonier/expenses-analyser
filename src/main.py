@@ -17,6 +17,7 @@ from sklearn.metrics import (
     plot_confusion_matrix,
 )
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
 from transformers import AutoModel, AutoTokenizer
 from umap import UMAP
 
@@ -42,7 +43,10 @@ class LabelsGenerator:
         tokenizer = AutoTokenizer.from_pretrained(self.pretrained_model_name)
         texts = self.debit["communication"].tolist()
         self.tokens = tokenizer(
-            texts, padding=True, truncation=True, return_tensors="pt"
+            texts,
+            padding=True,
+            truncation=True,
+            return_tensors="pt",
         )
 
     def embed(self) -> None:
@@ -50,28 +54,31 @@ class LabelsGenerator:
         # Get the embeddings
         with torch.no_grad():
             self.embeddings = model(
-                **self.tokens, output_hidden_states=True, return_dict=True
+                **self.tokens,
+                output_hidden_states=True,
+                return_dict=True,
             ).pooler_output
 
     def reduce_dim(self) -> None:
-        umap_coord = UMAP(init="spectral").fit_transform(self.embeddings)
+        # Add `, y=self.dl.debit["label"]` with encoded labels later
+        umap_coord = UMAP().fit_transform(self.embeddings)
 
         self.dim_red = pd.DataFrame(
-            data=umap_coord, columns=[f"coord_{i}" for i in range(umap_coord.shape[1])]
+            data=umap_coord,
+            columns=[f"coord_{i}" for i in range(umap_coord.shape[1])],
         )
         display(self.dim_red)
 
         self.clusterer = hdbscan.HDBSCAN()
         self.clusterer.fit(umap_coord)
-        labels = self.clusterer.labels_
-        labels = [str(label) for label in labels]
-
-        self.dim_red["label"] = labels
+        self.dim_red["label"] = pd.Categorical(self.clusterer.labels_)
+        print(self.dim_red[["label"]].dtypes)
 
         print(self.dim_red.shape)
 
     def plot_clusters(self) -> go.Figure:
-        """Plot the clusters"""
+        """Plot the clusters from vectorization + dimensionality reduction
+        """
 
         if not hasattr(self, "tokens"):
             print("---tokenizing")
@@ -86,7 +93,10 @@ class LabelsGenerator:
             self.reduce_dim()
 
         fig = px.scatter(
-            data_frame=self.dim_red, x="coord_0", y="coord_1", color="label"
+            data_frame=self.dim_red.sort_values("label"),
+            x="coord_0",
+            y="coord_1",
+            color="label",
         )
 
         return fig
@@ -97,5 +107,21 @@ generator = LabelsGenerator()
 #%%
 generator.plot_clusters()
 
+#%%
+df = generator.dim_red
+dl = data_loader.DataLoader(PATH="../data/expenses_new.csv")
+dl.debit
+# df
 # %%
-pd.DataFrame(data=generator.dim_red, columns=["a", "b"])
+df_merged = pd.merge(
+    left=dl.debit,
+    right=df[["label"]],
+    left_index=True,
+    right_index=True,
+    validate="1:1",
+)
+for lab in df_merged["label_y"].unique().sort_values():
+    print(f"------ {lab} ------")
+    display(df_merged[df_merged["label_y"] == lab])
+
+# %%
