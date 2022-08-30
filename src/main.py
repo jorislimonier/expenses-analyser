@@ -46,4 +46,3 @@ for lab in df_merged["label_predicted"].unique().sort_values():
     display(df_merged[df_merged["label_predicted"] == lab])
 
 # %%
-df_merged

@@ -25,6 +25,8 @@ class LabelsGenerator:
         self.pretrained_model_name = pretrained_model_name
 
     def tokenize(self) -> None:
+
+        print("---tokenizing")
         tokenizer = AutoTokenizer.from_pretrained(self.pretrained_model_name)
         texts = self.debit["communication"].tolist()
         self.tokens = tokenizer(
@@ -36,6 +38,8 @@ class LabelsGenerator:
 
     def embed(self) -> None:
         """Create embeddings with the bert model."""
+
+        print("---embedding")
         model = AutoModel.from_pretrained(self.pretrained_model_name)
 
         # Get the embeddings
@@ -47,6 +51,8 @@ class LabelsGenerator:
             ).pooler_output
 
     def reduce_dim(self) -> None:
+        
+        print("---reducing dimensions")
         # Add `, y=self.dl.debit["label"]` with encoded labels later
         umap_coord = UMAP().fit_transform(self.embeddings)
 
@@ -64,18 +70,19 @@ class LabelsGenerator:
         print(self.dim_red.shape)
 
     def plot_clusters(self) -> go.Figure:
-        """Plot the clusters from vectorization + dimensionality reduction"""
+        """Plot the clusters after performing:
+        - Tokenization
+        - Embedding
+        - Dimensionality Reduction
+        """
 
         if not hasattr(self, "tokens"):
-            print("---tokenizing")
             self.tokenize()
 
         if not hasattr(self, "embeddings"):
-            print("---embedding")
             self.embed()
 
         if not hasattr(self, "dim_red"):
-            print("---reducing dimensions")
             self.reduce_dim()
 
         fig = px.scatter(
