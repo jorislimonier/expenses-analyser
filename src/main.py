@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
+import torch
 from IPython.display import display
 from scipy.spatial.distance import cosine
 from sklearn.metrics import (
@@ -25,7 +26,19 @@ importlib.reload(labels_generator)
 
 #%%
 generator = labels_generator.LabelsGenerator()
+# %%
+generator.tokenize()
+generator.embed()
+# %%
+generator.embeddings = torch.cat(
+    [
+        generator.embeddings,
+        torch.tensor([0 if x < 186 else 1 for x in range(372)]).reshape(-1, 1),
+    ],
+    dim=1,
+)
 #%%
+generator.reduce_dim()
 generator.plot_clusters()
 
 #%%
