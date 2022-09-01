@@ -17,7 +17,7 @@ class LabelsGenerator:
 
     def __init__(
         self,
-        dl=data_loader.DataLoader(PATH="../data/expenses_new.csv"),
+        dl=data_loader.DataLoader(PATH="../data/raw/expenses_new.csv"),
         pretrained_model_name: str = "princeton-nlp/sup-simcse-bert-base-uncased",
     ) -> None:
         self.dl = dl
@@ -51,10 +51,11 @@ class LabelsGenerator:
             ).pooler_output
 
     def reduce_dim(self) -> None:
-        
+
         print("---reducing dimensions")
         # Add `, y=self.dl.debit["label"]` with encoded labels later
-        umap_coord = UMAP().fit_transform(self.embeddings)
+        umap_coord = UMAP(n_components=5).fit_transform(self.embeddings)
+        display(umap_coord)
 
         self.dim_red = pd.DataFrame(
             data=umap_coord,
@@ -85,11 +86,13 @@ class LabelsGenerator:
         if not hasattr(self, "dim_red"):
             self.reduce_dim()
 
-        fig = px.scatter(
+        fig = px.scatter_matrix(
             data_frame=self.dim_red.sort_values("label_predicted"),
-            x="coord_0",
-            y="coord_1",
+            # x="coord_0",
+            # y="coord_1",
+            dimensions=[col for col in self.dim_red if col != "label_predicted"],
             color="label_predicted",
+            opacity=0.7,
         )
 
         return fig

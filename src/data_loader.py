@@ -37,7 +37,7 @@ class DataLoader:
         except Exception:
             return "taxes_and_utilities"
 
-        with open("../data/label_identifiers.json") as f:
+        with open("../data/external/label_identifiers.json") as f:
             cat_dict_json = json.load(f)
 
         for category, category_list in cat_dict_json.items():

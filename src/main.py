@@ -15,7 +15,6 @@ from sklearn.metrics import (
     confusion_matrix,
     plot_confusion_matrix,
 )
-from sklearn.model_selection import train_test_split
 
 import data_loader
 import labels_generator
@@ -30,26 +29,21 @@ generator = labels_generator.LabelsGenerator()
 generator.tokenize()
 generator.embed()
 # %%
-generator.embeddings = torch.cat(
-    [
-        generator.embeddings,
-        torch.tensor([0 if x < 186 else 1 for x in range(372)]).reshape(-1, 1),
-    ],
-    dim=1,
-)
-#%%
 generator.reduce_dim()
 generator.plot_clusters()
 
 #%%
 df = generator.dim_red
-dl = data_loader.DataLoader(PATH="../data/expenses_new.csv")
+
+df
+#%%
+dl = data_loader.DataLoader(PATH="../data/raw/expenses_new.csv")
 dl.debit
 # df
 # %%
 df_merged = pd.merge(
     left=dl.debit,
-    right=df[["label_predicted"]],
+    right=generator.dim_red[["label_predicted"]],
     left_index=True,
     right_index=True,
     validate="1:1",
