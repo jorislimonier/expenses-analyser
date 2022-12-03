@@ -50,21 +50,31 @@ class LabelsGenerator:
                 return_dict=True,
             ).pooler_output
 
-    def reduce_dim(self) -> None:
+        print(self.embeddings)
+
+    def reduce_dim(self, nb_dim=5) -> None:
+        """Perform dimensionality reduction on the embeddings."""
 
         print("---reducing dimensions")
         # Add `, y=self.dl.debit["label"]` with encoded labels later
-        umap_coord = UMAP(n_components=5).fit_transform(self.embeddings)
-        display(umap_coord)
+        manual_labels = np.repeat(a=[-1], repeats=self.embeddings.shape[0])
+        
+
+
+        mapper = UMAP(n_components=nb_dim).fit_transform(
+            X=self.embeddings,
+            # y=manual_labels,
+            y=self.dl.debit["label"],
+        )
 
         self.dim_red = pd.DataFrame(
-            data=umap_coord,
-            columns=[f"coord_{i}" for i in range(umap_coord.shape[1])],
+            data=mapper,
+            columns=[f"coord_{i}" for i in range(mapper.shape[1])],
         )
         display(self.dim_red)
 
         self.clusterer = hdbscan.HDBSCAN()
-        self.clusterer.fit(umap_coord)
+        self.clusterer.fit(mapper)
         self.dim_red["label_predicted"] = pd.Categorical(self.clusterer.labels_)
         print(self.dim_red[["label_predicted"]].dtypes)
 

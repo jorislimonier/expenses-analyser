@@ -15,7 +15,7 @@ from sklearn.metrics import (
     confusion_matrix,
     plot_confusion_matrix,
 )
-
+from sklearn.preprocessing import LabelEncoder
 import data_loader
 import labels_generator
 
@@ -29,6 +29,8 @@ generator = labels_generator.LabelsGenerator()
 generator.tokenize()
 generator.embed()
 # %%
+generator.embeddings
+# %%
 generator.reduce_dim()
 generator.plot_clusters()
 
@@ -36,6 +38,11 @@ generator.plot_clusters()
 df = generator.dim_red
 
 df
+# %%
+enc = LabelEncoder()
+enc.fit(generator.dl.debit["label"])
+np.where(enc.fit_transform(generator.dl.debit["label"]))
+np.isnan(enc.classes_[-1])
 #%%
 dl = data_loader.DataLoader(PATH="../data/raw/expenses_new.csv")
 dl.debit

@@ -31,7 +31,9 @@ class DataLoader:
         self.data = data
 
     def make_initial_categories(self, comm):
-        "categorize expenses based on communication"
+        """Categorize expenses based on communication.
+        These labels are handmade.
+        """
         try:
             comm_lower = comm.lower()
         except Exception:
